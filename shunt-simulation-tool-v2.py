@@ -110,29 +110,6 @@ if page == "シミュレーションツール":
     st.write(f"TAV/TAMV: {TAV_TAMV_ratio:.2f}")
     st.write(f"血管径: {diameter:.1f} mm")  # **血管径の表示**
 
-    # **波形分類**
-    if TAV_TAMV_ratio > 0.95:
-        wave_comment = "Ⅰ・Ⅱ型はシャント機能は問題なし"
-    elif TAV_TAMV_ratio <= 0.95 and TAV_TAMV_ratio > 0.6:
-        wave_comment = "Ⅲ型は50％程度の狭窄があるため細かく精査"
-    elif TAV_TAMV_ratio <= 0.6 and TAV_TAMV_ratio > 0.3:
-        wave_comment = "Ⅳ型はVAIVTを提案を念頭に精査"
-    else:
-        wave_comment = "Ⅴ型はシャント閉塞している可能性が高い"
-
-    st.write(f"### 波形分類")
-    st.write(wave_comment)
-
-    # **TAVR算出（仮定）**
-    TAVR = 0.5 * FV / (RI * diameter)
-    st.write(f"### TAVRの算出")
-    st.write(f"TAVR: {TAVR:.2f} (仮定値)")
-
-    # **RI/PI算出**
-    RI_PI = RI / PI if PI != 0 else 0
-    st.write(f"### RI/PI の算出")
-    st.write(f"RI/PI: {RI_PI:.2f}")
-
 # **評価フォームのページ**
 elif page == "評価フォーム":
     st.title("シャント機能評価フォーム")
@@ -165,3 +142,25 @@ elif page == "評価フォーム":
         st.write("### 評価コメント")
         for comment in comments:
             st.write(f"- {comment}")
+
+    # **波形分類**
+    wave_comment = "波形分類に関する情報"
+    st.write(f"### 波形分類")
+    st.write("Ⅰ・Ⅱ型はシャント機能は問題なし")
+    st.write("Ⅲ型は50％程度の狭窄があるため細かく精査")
+    st.write("Ⅳ型はVAIVTを提案を念頭に精査")
+    st.write("Ⅴ型はシャント閉塞している可能性が高い")
+
+    # **TAVRの算出**（入力データに基づく算出）
+    TAVR = (fv * ri) / (tamv * 100)
+    st.write(f"### TAVRの算出")
+    st.write(f"TAVR: {TAVR:.2f}")
+
+    # **RI/PIの算出**
+    RI_PI = ri / pi if pi != 0 else 0
+    st.write(f"### RI/PI の算出")
+    st.write(f"RI/PI: {RI_PI:.2f}")
+
+    # **追加コメント**
+    st.write("### 追加コメント")
+    st.write("吻合部付近に2.5mmを超える分岐血管がある場合は遮断試験を行ってください")
