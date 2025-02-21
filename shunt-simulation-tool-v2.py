@@ -151,8 +151,8 @@ elif page == "評価フォーム":
     st.write("Ⅳ型はVAIVTを提案を念頭に精査")
     st.write("Ⅴ型はシャント閉塞している可能性が高い")
 
-    # **TAVRの算出**（入力データに基づく算出）
-    TAVR = (fv * ri) / (tamv * 100)
+    # **TAVRの算出**（TAV/TAMVの計算）
+    TAVR = tav / tamv if tamv != 0 else 0
     st.write(f"### TAVRの算出")
     st.write(f"TAVR: {TAVR:.2f}")
 
