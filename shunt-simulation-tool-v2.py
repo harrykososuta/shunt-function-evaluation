@@ -110,6 +110,29 @@ if page == "シミュレーションツール":
     st.write(f"TAV/TAMV: {TAV_TAMV_ratio:.2f}")
     st.write(f"血管径: {diameter:.1f} mm")  # **血管径の表示**
 
+    # **波形分類**
+    if TAV_TAMV_ratio > 0.95:
+        wave_comment = "Ⅰ・Ⅱ型はシャント機能は問題なし"
+    elif TAV_TAMV_ratio <= 0.95 and TAV_TAMV_ratio > 0.6:
+        wave_comment = "Ⅲ型は50％程度の狭窄があるため細かく精査"
+    elif TAV_TAMV_ratio <= 0.6 and TAV_TAMV_ratio > 0.3:
+        wave_comment = "Ⅳ型はVAIVTを提案を念頭に精査"
+    else:
+        wave_comment = "Ⅴ型はシャント閉塞している可能性が高い"
+
+    st.write(f"### 波形分類")
+    st.write(wave_comment)
+
+    # **TAVR算出（仮定）**
+    TAVR = 0.5 * FV / (RI * diameter)
+    st.write(f"### TAVRの算出")
+    st.write(f"TAVR: {TAVR:.2f} (仮定値)")
+
+    # **RI/PI算出**
+    RI_PI = RI / PI if PI != 0 else 0
+    st.write(f"### RI/PI の算出")
+    st.write(f"RI/PI: {RI_PI:.2f}")
+
 # **評価フォームのページ**
 elif page == "評価フォーム":
     st.title("シャント機能評価フォーム")
