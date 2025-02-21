@@ -100,14 +100,43 @@ if page == "シミュレーションツール":
     st.write(f"RI/PI: {RI/PI:.2f}")
     st.write(blood_flow_comment)
 
+# **評価フォームのページ**
+elif page == "評価フォーム":
+    st.title("シャント機能評価フォーム")
+
+    # 入力フォーム
+    fv = st.number_input("FV（血流量, ml/min）", min_value=0.0, value=400.0)
+    ri = st.number_input("RI（抵抗指数）", min_value=0.0, value=0.6)
+    pi = st.number_input("PI（脈波指数）", min_value=0.0, value=1.2)
+    tav = st.number_input("TAV（時間平均流速, cm/s）", min_value=0.0, value=60.0)
+    tamv = st.number_input("TAMV（時間平均最大速度, cm/s）", min_value=0.0, value=100.0)
+    psv = st.number_input("PSV（収縮期最大速度, cm/s）", min_value=0.0, value=120.0)
+    edv = st.number_input("EDV（拡張期末速度, cm/s）", min_value=0.0, value=50.0)
+
+    # シャント機能評価の実行
+    score, comments = evaluate_shunt_function(tav, ri, pi, edv)
+
+    # スコアとコメントの表示
+    st.write("### 評価結果")
+    st.write(f"評価スコア: {score} / 4")
     # **スコアと追加評価コメント**
     score, comments = evaluate_shunt_function(TAV, RI, PI, EDV)
 
+    if score == 0:
+        st.success("シャント機能は正常です。経過観察が推奨されます。")
+    elif score == 1 or score == 2:
+        st.warning("シャント機能は要注意です。追加評価が必要です。")
+    else:
+        st.error("シャント不全のリスクが高いです。専門的な評価が必要です。")
     # スコアの表示
     st.write("### スコア")
     st.write(f"評価スコア: {score} / 4")
 
     # コメントの表示
+    if comments:
+        st.write("### 評価コメント")
+        for comment in comments:
+            st.write(f"- {comment}")
     st.write("### 評価コメント")
     for comment in comments:
         st.write(f"- {comment}")
