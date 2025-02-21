@@ -132,3 +132,31 @@ elif page == "評価フォーム":
         st.write("### 評価コメント")
         for comment in comments:
             st.write(f"- {comment}")
+
+# シャント機能不全の診断基準を評価する関数
+def evaluate_shunt_function(TAV, RI, PI, EDV):
+    # スコアの初期化
+    score = 0
+    comments = []
+
+    # TAV 評価
+    if TAV <= 34.5:
+        score += 1
+        comments.append("TAVが34.5 cm/s以下 → 低血流が疑われる")
+
+    # RI 評価
+    if RI >= 0.68:
+        score += 1
+        comments.append("RIが0.68以上 → 高抵抗が疑われる")
+
+    # PI 評価
+    if PI >= 1.3:
+        score += 1
+        comments.append("PIが1.3以上 → 脈波指数が高い")
+
+    # EDV 評価
+    if EDV <= 40.4:
+        score += 1
+        comments.append("EDVが40.4 cm/s以下 → 拡張期血流速度が低い")
+
+    return score, comments
