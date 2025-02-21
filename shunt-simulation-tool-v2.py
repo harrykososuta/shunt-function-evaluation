@@ -1,4 +1,10 @@
 import streamlit as st
+
+# **他の Streamlit コマンドの前に set_page_config() を記述**
+if "is_configured" not in st.session_state:
+    st.set_page_config(page_title="シャント機能評価", layout="wide")
+    st.session_state.is_configured = True
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -23,6 +29,33 @@ coefficients = {
 # 指定した FV, RI, 血管径 に応じた各パラメータの計算関数
 def calculate_parameter(FV, RI, diameter, coeffs):
     return coeffs[0] + coeffs[1] * float(FV) + coeffs[2] * float(RI) + coeffs[3] * float(diameter)
+
+# シャント機能不全の診断基準
+def evaluate_shunt_function(TAV, RI, PI, EDV):
+    score = 0
+    comments = []
+
+    # TAV 評価
+    if TAV <= 34.5:
+        score += 1
+        comments.append("TAVが34.5 cm/s以下 → 低血流が疑われる")
+
+    # RI 評価
+    if RI >= 0.68:
+        score += 1
+        comments.append("RIが0.68以上 → 高抵抗が疑われる")
+
+    # PI 評価
+    if PI >= 1.3:
+        score += 1
+        comments.append("PIが1.3以上 → 脈波指数が高い")
+
+    # EDV 評価
+    if EDV <= 40.4:
+        score += 1
+        comments.append("EDVが40.4 cm/s以下 → 拡張期血流速度が低い")
+
+    return score, comments
 
 # **サイドバーでページ選択**
 st.sidebar.title("ページ選択")
@@ -77,29 +110,6 @@ if page == "シミュレーションツール":
     st.write(f"TAV/TAMV: {TAV_TAMV_ratio:.2f}")
     st.write(f"血管径: {diameter:.1f} mm")  # **血管径の表示**
 
-    # 追加評価ロジック
-    # TAV/TAMV の評価
-    if TAV_TAMV_ratio > 0.95:
-        stenosis_comment = "TAV/TAMV ≈ 1 に近い → 層流で安定 → 狭窄リスク低"
-    elif TAV_TAMV_ratio < 0.6:
-        stenosis_comment = "TAV/TAMV < 0.6 → 乱流増加 → 狭窄の可能性"
-    else:
-        stenosis_comment = "TAV/TAMV は正常範囲"
-
-    # RI/PI の評価
-    if RI / PI <= 0.5:
-        blood_flow_comment = "RI/PI が 0.5 以下 → PSV に対して TAMV が極端に低い → 血流変動が大きく、狭窄の可能性"
-    else:
-        blood_flow_comment = "RI/PI は正常範囲"
-
-    # 評価結果の表示
-    st.subheader("評価結果")
-    st.write(f"TAV/TAMV: {TAV_TAMV_ratio:.2f}")
-    st.write(stenosis_comment)
-
-    st.write(f"RI/PI: {RI/PI:.2f}")
-    st.write(blood_flow_comment)
-
 # **評価フォームのページ**
 elif page == "評価フォーム":
     st.title("シャント機能評価フォーム")
@@ -119,8 +129,6 @@ elif page == "評価フォーム":
     # スコアとコメントの表示
     st.write("### 評価結果")
     st.write(f"評価スコア: {score} / 4")
-    # **スコアと追加評価コメント**
-    score, comments = evaluate_shunt_function(TAV, RI, PI, EDV)
 
     if score == 0:
         st.success("シャント機能は正常です。経過観察が推奨されます。")
@@ -128,43 +136,9 @@ elif page == "評価フォーム":
         st.warning("シャント機能は要注意です。追加評価が必要です。")
     else:
         st.error("シャント不全のリスクが高いです。専門的な評価が必要です。")
-    # スコアの表示
-    st.write("### スコア")
-    st.write(f"評価スコア: {score} / 4")
 
     # コメントの表示
     if comments:
         st.write("### 評価コメント")
         for comment in comments:
             st.write(f"- {comment}")
-    st.write("### 評価コメント")
-    for comment in comments:
-        st.write(f"- {comment}")
-
-# シャント機能不全の診断基準を評価する関数
-def evaluate_shunt_function(TAV, RI, PI, EDV):
-    # スコアの初期化
-    score = 0
-    comments = []
-
-    # TAV 評価
-    if TAV <= 34.5:
-        score += 1
-        comments.append("TAVが34.5 cm/s以下 → 低血流が疑われる")
-
-    # RI 評価
-    if RI >= 0.68:
-        score += 1
-        comments.append("RIが0.68以上 → 高抵抗が疑われる")
-
-    # PI 評価
-    if PI >= 1.3:
-        score += 1
-        comments.append("PIが1.3以上 → 脈波指数が高い")
-
-    # EDV 評価
-    if EDV <= 40.4:
-        score += 1
-        comments.append("EDVが40.4 cm/s以下 → 拡張期血流速度が低い")
-
-    return score, comments
